@@ -1,6 +1,7 @@
 package com.firefinchdev.prmerge
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -10,10 +11,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.firefinchdev.prmerge.auth.BiometricAuthManager
+import com.firefinchdev.prmerge.auth.BiometricAuthStatus
 import com.firefinchdev.prmerge.data.GitHubRepository
 import com.firefinchdev.prmerge.data.PreferencesManager
 import com.firefinchdev.prmerge.ui.PRMergeScreen
@@ -21,14 +25,31 @@ import com.firefinchdev.prmerge.ui.PRMergeViewModel
 import com.firefinchdev.prmerge.ui.SettingsScreen
 import com.firefinchdev.prmerge.ui.theme.PRMergeTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
+
+    val authManager = BiometricAuthManager(this)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
-            PRMergeTheme {
-                PRMergeApp()
-            }
+        if (authManager.isBiometricAvailable() == BiometricAuthStatus.AVAILABLE) {
+            authManager.authenticate(
+                onSuccess = {
+                    setContent {
+                        PRMergeTheme {
+                            PRMergeApp()
+                        }
+                    }
+                },
+                onError = {
+                    Toast.makeText(this@MainActivity, "Enable Biometric to use the app", Toast.LENGTH_SHORT).show()
+                },
+                onFailed = {
+                    Toast.makeText(this@MainActivity, "Something went wrong", Toast.LENGTH_SHORT).show()
+                }
+            )
+        } else {
+            Toast.makeText(this@MainActivity, "Enable Biometric to use the app", Toast.LENGTH_SHORT).show()
         }
     }
 }

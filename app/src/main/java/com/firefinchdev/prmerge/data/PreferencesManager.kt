@@ -12,6 +12,7 @@ class PreferencesManager(context: Context) {
 
     companion object {
         private const val KEY_GITHUB_TOKEN = "github_token"
+        private const val KEY_BIOMETRIC_ENABLED = "biometric_enabled"
     }
 
     fun saveGitHubToken(token: String) {
@@ -28,5 +29,15 @@ class PreferencesManager(context: Context) {
         sharedPreferences.edit()
             .remove(KEY_GITHUB_TOKEN)
             .apply()
+    }
+
+    fun setBiometricEnabled(enabled: Boolean) {
+        sharedPreferences.edit()
+            .putBoolean(KEY_BIOMETRIC_ENABLED, enabled)
+            .apply()
+    }
+
+    fun isBiometricEnabled(): Boolean {
+        return sharedPreferences.getBoolean(KEY_BIOMETRIC_ENABLED, false)
     }
 }
